@@ -26,6 +26,7 @@ class AgreementGenerator(data_generator.BenchmarkGenerator):
         # The doctor of the men are           helping     some people.
         # D   Subj      S_arg   Aux_not_agree V_not_agree args
 
+        obj_plural = choice([True, False])
         S_arg = None
         while S_arg is None:
             subj = choice(self.safe_subjs)
@@ -50,7 +51,8 @@ class AgreementGenerator(data_generator.BenchmarkGenerator):
                 V_not_agree = V_agree
 
             try:
-                if subj["pl"] == "1":
+                # Decouple obj & subj behavior.
+                if not obj_plural:
                     S_arg = N_to_DP_mutate(
                         choice(
                             get_matches_of(
@@ -108,14 +110,13 @@ class AgreementGenerator(data_generator.BenchmarkGenerator):
                 V_not_agree[0],
                 join_args(V_args["args"]),
             ),
-            "one_prefix_prefix": prefix,
-            "one_prefix_word_good": word_good,
-            "one_prefix_word_bad": word_bad,
+            "object_plural": "yes" if obj_plural else "no",
+            "subject_plural": "yes" if subj["pl"] == "1" else "no",
         }
         return data, data["sentence_good"]
 
 
 generator = AgreementGenerator()
 generator.generate_paradigm(
-    rel_output_path="outputs/benchmark/%s.jsonl" % generator.uid
+    rel_output_path="outputs/benchmark/%s.jsonl" % generator.uid, number_to_generate=5_000
 )
