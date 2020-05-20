@@ -31,14 +31,24 @@ class Generator(data_generator.BenchmarkGenerator):
         args_emb = verb_args_from_verb(V_emb, allow_negated=False, subj=args["subj"])
         VP_emb = V_to_VP_mutate(V_emb, aux=False, args=args_emb)
 
+        PI = choice(["ever", "never"])
+        negated_outside_scope = choice([True, False])
+
+        if PI == "ever":
+            good_PI = "not ever"
+            bad_PI = "ever"
+        else:
+            good_PI = "never"
+            bad_PI = "not never"
+
+        # TODO: adding the space is a bit hacky
         data = {
-            "sentence_good": "%s %s %s %s %s not ever %s." % (args["subj"][0], rel[0], args_emb["aux"][0], VP_emb[0], args["aux"][0], VP[0]),
-            "sentence_bad": "%s %s %s not %s %s ever %s." % (args["subj"][0], rel[0], args_emb["aux"][0], VP_emb[0], args["aux"][0], VP[0]),
-            "two_prefix_prefix_good": "%s %s %s %s %s not" % (args["subj"][0], rel[0], args_emb["aux"][0], VP_emb[0], args["aux"][0]),
-            "two_prefix_prefix_bad": "%s %s %s not %s %s" % (args["subj"][0], rel[0], args_emb["aux"][0], VP_emb[0], args["aux"][0]),
-            "two_prefix_word": "ever"
+            "sentence_good": "%s %s %s%s%s %s %s %s." % (args["subj"][0], rel[0], args_emb["aux"][0], " not " if negated_outside_scope else " ", VP_emb[0], args["aux"][0], good_PI, VP[0]),
+            "sentence_bad": "%s %s %s%s%s %s %s %s." % (args["subj"][0], rel[0], args_emb["aux"][0], " not " if negated_outside_scope else " ", VP_emb[0], args["aux"][0], bad_PI, VP[0]),
+            "PI": PI,
+            "negated_outside_scope": negated_outside_scope
         }
         return data, data["sentence_good"]
 
 generator = Generator()
-generator.generate_paradigm(rel_output_path="outputs/benchmark/%s.jsonl" % generator.uid)
+generator.generate_paradigm(rel_output_path="outputs/benchmark/%s.jsonl" % generator.uid, number_to_generate=10_000)
