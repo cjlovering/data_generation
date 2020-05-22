@@ -61,8 +61,8 @@ if __name__ == "__main__":
         train_data_pos[: math.floor(args.train_size * args.rate)]
         + train_data_neg[: math.ceil(args.train_size * (1 - args.rate))]
     )
-    val_data_pos = data_pos[math.floor(args.train_size * args.rate) :]
-    val_data_neg = data_neg[math.ceil(args.train_size * (1 - args.rate)) :]
+    val_data_pos = train_data_pos[math.floor(args.train_size * args.rate) :]
+    val_data_neg = train_data_neg[math.ceil(args.train_size * (1 - args.rate)) :]
     val_data = (
         val_data_pos[: math.floor(args.val_size * args.rate)]
         + val_data_neg[: math.ceil(args.val_size * (1 - args.rate))]
